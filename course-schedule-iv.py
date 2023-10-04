@@ -1,24 +1,22 @@
 class Solution:
     def checkIfPrerequisite(self, numCourses: int, prerequisites: List[List[int]], queries: List[List[int]]) -> List[bool]:
-        graph = defaultdict(list)
+        courses = [[float('inf')] * numCourses for _ in range(numCourses)]
         for u, v in prerequisites:
-            graph[v].append(u)
+            courses[u][v] = 1
 
-        def dfs(course):
-            if course not in pre:
-                pre[course] = set()
-                for each in graph[course]:
-                    pre[course].add(each)
-                    pre[course] |= dfs(each)
+        for i in range(numCourses):
+            courses[i][i] = 0
 
-            return pre[course]
+        for k in range(numCourses):
+            for i in range(numCourses):
+                for j in range(numCourses):
+                    courses[i][j] = min(courses[i][j], courses[i][k] + courses[k][j])
 
-        pre = {}
-        for course in range(numCourses):
-            dfs(course)
-        
         answer = []
         for u, v in queries:
-            answer.append(u in pre[v])
-        
+            if courses[u][v] == float(inf):
+                answer.append(False)
+            else:
+                answer.append(True)
+
         return answer

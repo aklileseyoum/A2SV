@@ -6,29 +6,58 @@
 #         self.right = right
 class Solution:
     def pathSum(self, root: Optional[TreeNode], targetSum: int) -> int:
-        answer = [0]
-        def dfs(root, cursum, visited, count):
+        graph = defaultdict(list)
+        def dfs(root):
             if not root:
-                return 
+                return
+
+            graph[root].append(parent[-1])
+            graph[parent[-1]].append(root)
+            parent[-1] += 1
+            if root.left:
+                dfs(root.left)
+            if root.right:
+                dfs(root.right)
+
+        parent = [1]
+        dfs(root)
+        
+        def dijkstra():
+            visited = set()
+            added = defaultdict(list)
+            priority_queue = []
+            ans = 0
+            if root:
+                priority_queue = [[root.val, root.val, graph[root][-1]]]
+                added[graph[root][-1]] = [root.val]
             
-            count += 1
-            if root.val == targetSum and count == 0:
-                answer[-1] += 1
-            else:
-                cursum += root.val
-                if cursum == targetSum:
-                    answer[-1] += 1
-                summ = cursum
-                for each in visited:
-                    summ -= each
-                    if summ == targetSum:
-                        answer[-1] += 1
+            while priority_queue:
+                current_distance, node_val, current_node_rep = heapq.heappop(priority_queue)
+                if current_node_rep in visited:
+                    continue
+                visited.add(current_node_rep)
 
-            visited.append(root.val)
-            dfs(root.left, cursum, visited, count)
-            dfs(root.right, cursum, visited, count)
-            visited.pop()
+                current_node = graph[current_node_rep][-1]
+                summed = list(added[graph[current_node][-1]])[::-1]
+                val = current_distance
+                
+                while summed:
+                    if val == targetSum:
+                        ans += 1
+                    val -= summed.pop()
 
+                if current_node.left:
+                    distance = current_distance + current_node.left.val
+                    added[graph[current_node.left][-1]] += added[graph[current_node][-1]]
+                    added[graph[current_node.left][-1]].append(current_node.left.val)
+                    heapq.heappush(priority_queue, [distance, current_node.left.val, graph[current_node.left][-1]])
 
-        dfs(root, 0, [], 0)
-        return answer[-1]
+                if current_node.right:
+                    distance = current_distance  + current_node.right.val
+                    added[graph[current_node.right][-1]] += added[graph[current_node][-1]]
+                    added[graph[current_node.right][-1]].append(current_node.right.val)
+                    heapq.heappush(priority_queue, [distance, current_node.right.val, graph[current_node.right][-1]])
+                
+            return ans
+
+        return dijkstra()

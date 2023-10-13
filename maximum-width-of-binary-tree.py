@@ -7,20 +7,21 @@
 class Solution:
     def widthOfBinaryTree(self, root: Optional[TreeNode]) -> int:
         store = defaultdict(list)
+        priority_queue = [(0, 1, root)]
         
-        def width(root, level=0, value=1):
-            if root == None:
-                return
-
-            if len(store[level]) > 2:
+        while priority_queue:
+            level, value, node = heapq.heappop(priority_queue)
+            if len(store[level]) >= 2:
                 store[level][-1] = value
             else:
                 store[level].append(value)
-            
-            width(root.left, level + 1, 2 * value)
-            width(root.right, level + 1, 2 * value + 1)
-        
-        width(root)
+
+            if node.left:
+                heapq.heappush(priority_queue, (level + 1, 2 * value, node.left))
+            if node.right:
+                heapq.heappush(priority_queue, (level + 1, (2 * value + 1), node.right))
+
+
         nodes = list(store.values())
         maximum = 0
         

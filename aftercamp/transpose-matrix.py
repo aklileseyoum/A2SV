@@ -1,0 +1,12 @@
+class Solution:
+    def transpose(self, matrix: List[List[int]]) -> List[List[int]]:
+        ans = []
+        for col in range(len(matrix[0])):
+            line = []
+            for row in range(len(matrix)):
+                line.append(matrix[row][col])
+            ans.append(line)
+
+        return ans
+
+        
